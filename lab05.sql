@@ -31,18 +31,18 @@ DROP TABLE IF EXISTS cours_programme;
 CREATE TABLE cours_programme(
     code_cours CHAR(9),
     id_programme INT,
-    CONSTRAINT PRIMARY KEY(code_cours, id_programme INT)
+    CONSTRAINT PRIMARY KEY(code_cours, id_programme)
 );
 
 ALTER TABLE cours_programme 
-    ADD CONSTRAINT fk_code_cours_code_cours
+    ADD CONSTRAINT fk_cours_programme_cours
     FOREIGN KEY(code_cours)
     REFERENCES cours(code_cours);
     ON DELETE RESTRICT
     On UPDATE CASCADE;
   
 ALTER TABLE cours_programme   
-    ADD CONSTRAINT fk_id_programme_id_programme
+    ADD CONSTRAINT fk_cours_programme_programme
     FOREIGN KEY(id_programme)
     REFERENCE programme(id_programme);
     ON DELETE RESTRICT
@@ -51,7 +51,7 @@ ALTER TABLE cours_programme
 -- Créer le programme
 DROP TABLE IF EXISTS programme;
 CREATE TABLE programme(
-    id_programme INT,
+    id_programme INT AUTO_INCREMENT,
     nom VARCHAR(50),
     CONSTRAINT PRIMARY KEY(id_programme)
 );
@@ -66,7 +66,7 @@ CREATE TABLE semestre(
 );
 
 ALTER TABLE semestre  
-    ADD CONSTRAINT fk_id_saison_id_saison
+    ADD CONSTRAINT fk_semetre_saison
     FOREIGN KEY(id_saison)
     REFERENCE saison(id_saison);
     ON DELETE RESTRICT
@@ -82,14 +82,14 @@ CREATE TABLE classe(
 );
 
 ALTER TABLE classe 
-    ADD CONSTRAINT fk_id_semestre_code_cours
+    ADD CONSTRAINT fk_classE_semestre
     FOREIGN KEY(id_semestre)
-    REFERENCE cours(code_cours);
+    REFERENCE semestre(id_semestre);
     ON DELETE RESTRICT
     ON UPDATE CASCADE;
 
 ALTER TABLE classe 
-    ADD CONSTRAINT fk_code_cours_code_cours
+    ADD CONSTRAINT fk_classe_cours
     FOREIGN KEY(code_cours)
     REFERENCE cours(code_cours);
     ON DELETE RESTRICT
@@ -106,7 +106,7 @@ CREATE TABLE etudiant(
     CONSTRAINT PRIMARY KEY(no_etudiant)
 
     CONSTRAINT ck_note_moyenne CHECK(
-        note > 0 AND note_moyenne < 100
+        note_moyenne >= 0 AND note_moyenne <= 100
     )
 );
 
@@ -115,19 +115,18 @@ DROP TABLE IF EXISTS classe_professeur
 CREATE TABLE classe_professeur(
     id_classe INT,
     no_professeur CHAR(7),
-    CONSTRAINT PRIMARY KEY(id_classe),
-    CONSTRAINT PRIMARY KEY(no_professeur)
+    CONSTRAINT PRIMARY KEY(id_classe, no_professeur)
 );
 
 ALTER TABLE classe_professeur
-    ADD CONSTRAINT fk_id_classe_id_classe
+    ADD CONSTRAINT fk_id_classe_professeur_classe
     FOREIGN KEY(id_classe)
-    REFERENCE cours(classe);
+    REFERENCE cours(id_classe);
     ON DELETE RESTRICT
     ON UPDATE CASCADE;
 
 ALTER TABLE classe_professeur
-    ADD CONSTRAINT fk_no_professeur_no_professeur
+    ADD CONSTRAINT fk_classe_professeur_professeur
     FOREIGN KEY(no_professeur)
     REFERENCE professeur(no_professeur);
     ON DELETE RESTRICT
@@ -150,25 +149,25 @@ CREATE TABLE classe_etudiant(
     no_etudiant CHAR(7),
     note FLOAT,
     CONSTRAINT PRIMARY KEY(id_classe, no_etudiant)
-
     CONSTRAINT ck_note CHECK(
-        note > 0 AND note < 100
+        note >= 0 AND note <= 100
     )
 );
 
 ALTER TABLE classe_etudiant
-    ADD CONSTRAINT fk_id_classe_id_classe
+    ADD CONSTRAINT fk_classe_etudiant_classe
     FOREIGN KEY(id_classe)
     REFERENCE classe(id_classe);
     ON DELETE RESTRICT
     ON UPDATE CASCADE;
 
 ALTER TABLE classe_etudiant
-    ADD CONSTRAINT fk_no_etudiant_no_etudiant
-    FOREIGN KEY(no_professeur)
+    ADD CONSTRAINT fk_classe_etudiant_etudiant
+    FOREIGN KEY(no_etudiant)
     REFERENCE etudiant(no_etudiant);
     ON DELETE RESTRICT
     ON UPDATE CASCADE;
 
 -- Ajouter index
-CREATE INDEX idx_nom_cours ON cours(prenom, nom_etudiant)
+CREATE INDEX idx_nom_cours ON cours(nom);
+CREATE INDEX idx_nom_etudiant ON etudiant(prenom, nom)
